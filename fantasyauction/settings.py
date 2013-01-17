@@ -127,6 +127,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'league',
     'auction',
+    'player',
 )
 
 # A sample logging configuration. The only tangible logging
