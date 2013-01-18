@@ -2,5 +2,10 @@
 <head><title>league home</title></head>
 <h1>league home</h1>
 <body>
+<div>{{ league.name }}</div>
+{% with league_id=league.id %}
+    <div><a href="{% url league.views.league_auctions league_id=league_id %}">Auctions</a></div>
+    <div><a href="{% url league.views.league_rosters league_id=league_id %}">Rosters</a></div>
+{% endwith %}
 </body>
 </html>
