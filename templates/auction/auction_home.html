@@ -2,5 +2,19 @@
 <head><title>auction home</title></head>
 <h1>auction home</h1>
 <body>
+<div>Player: {{ auction.player.get_player_string }}</div>
+<div>Start time: {{ auction.start_time }}</div>
+<div>Expiration time: {{ auction.expiration_time }}</div>
+{% with active=auction.active completed=auction.completed %}
+    <div>Active: {{ active|yesno:"Yes,No" }}</div>
+    <div>Completed: {{ completed|yesno:"Yes,No" }}</div>
+{% endwith %}
+<div>High bid: ${{ auction.high_bid_value }}</div>
+<div>High bidder: {{ auction.high_bidder.username }}</div>
+<br>
+<div>Bid history:</div>
+{% for bid in bids %}
+    <div>{{ bid.bidder.username }} {{ bid.time }}</div>
+{% endfor %}
 </body>
 </html>

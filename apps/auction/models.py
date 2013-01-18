@@ -22,10 +22,11 @@ class Auction(models.Model):
 class Bid(models.Model):
     auction = models.ForeignKey(Auction)
     bidder = models.ForeignKey(User)
+    time = models.DateTimeField(blank=True) #server time
     current_value = models.IntegerField()
     max_value = models.IntegerField()
     current_high_bid = models.BooleanField(default=False) #whether this is current high bid, for an active auction
     winning_bid = models.BooleanField(default=False) #whether this is winning bid for a completed auction
 
     def __unicode__(self):
-        return self.bidder.username + ', ' + self.auction.player.name + ', ' + self.current_value + ', ' + self.max_value
+        return self.bidder.username + ', ' + self.auction.player.name + ', ' + str(self.time)

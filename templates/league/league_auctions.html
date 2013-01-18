@@ -4,7 +4,10 @@
 <body>
 <div>Auctions:</div>
 {% for auction in auctions %}
-    <div>{{ auction.player.get_player_string }}, start time: {{ auction.start_time }}, expiration time: {{ auction.expiration_time }}</div>
+    {% with auction_id=auction.id %}
+        <div><a href="{% url auction.views.auction_home auction_id=auction_id %}">
+        {{ auction.player.get_player_string }}, start time: {{ auction.start_time }}, expiration time: {{ auction.expiration_time }}</a></div>
+    {% endwith %}
 {% endfor %}
 </body>
 </html>
