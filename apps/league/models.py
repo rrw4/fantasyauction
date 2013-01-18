@@ -20,6 +20,10 @@ class Roster(models.Model):
     total_salary = models.IntegerField(blank=True) #sum of roster's salaries
     total_players = models.IntegerField(blank=True) #number of players on the roster
 
+    def get_players(self):
+        roster_players = RosterPlayer.objects.filter(roster=self)
+        return roster_players
+
     def __unicode__(self):
         return self.league.name + ', ' + self.user.username
 
