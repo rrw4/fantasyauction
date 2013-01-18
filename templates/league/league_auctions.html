@@ -3,5 +3,8 @@
 <h1>league auctions</h1>
 <body>
 <div>Auctions:</div>
+{% for auction in auctions %}
+    <div>{{ auction.player.get_player_string }}, start time: {{ auction.start_time }}, expiration time: {{ auction.expiration_time }}</div>
+{% endfor %}
 </body>
 </html>
