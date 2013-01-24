@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from player.models import Player
 
@@ -24,6 +26,17 @@ class Roster(models.Model):
         roster_players = RosterPlayer.objects.filter(roster=self)
         return roster_players
 
+    def update_roster_numbers(self):
+        roster_players = RosterPlayer.objects.filter(roster=self)
+        total_salary = 0
+        total_players = 0
+        for roster_player in roster_players:
+            total_salary += roster_player.salary
+            total_players += 1
+        self.total_salary = total_salary
+        self.total_players = total_players
+        self.save()
+
     def __unicode__(self):
         return self.league.name + ', ' + self.user.username
 
@@ -34,3 +47,9 @@ class RosterPlayer(models.Model):
 
     def __unicode__(self):
         return self.roster.user.username + ' - ' + self.player.get_player_string()
+
+@receiver(post_save, sender=RosterPlayer)
+def update_roster(sender, **kwargs):
+    rosterplayer = kwargs.get('instance')
+    roster = rosterplayer.roster
+    roster.update_roster_numbers()
