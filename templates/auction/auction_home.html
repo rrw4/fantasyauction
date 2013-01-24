@@ -9,8 +9,13 @@
     <div>Active: {{ active|yesno:"Yes,No" }}</div>
     <div>Completed: {{ completed|yesno:"Yes,No" }}</div>
 {% endwith %}
+{% if auction.high_bid_value and auction.high_bidder %}
 <div>High bid: ${{ auction.high_bid_value }}</div>
 <div>High bidder: {{ auction.high_bidder.username }}</div>
+{% endif %}
+{% if not auction.completed %}
+<div>Minimum bid: ${{ auction.high_bid_value|default_if_none:"0"|add:"1" }}</div>
+{% endif %}
 <br>
 <div>Bid history:</div>
 {% for bid in bids %}
