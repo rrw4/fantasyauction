@@ -13,8 +13,8 @@ class Auction(models.Model):
     completed = models.BooleanField(default=False) #True when auction has completed
 
     #denormalized fields
-    high_bid_value = models.IntegerField(blank=True)
-    high_bidder = models.ForeignKey(User, blank=True)
+    high_bid_value = models.IntegerField(blank=True, null=True)
+    high_bidder = models.ForeignKey(User, blank=True, null=True)
 
     def __unicode__(self):
         return self.player.name
