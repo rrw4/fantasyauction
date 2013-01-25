@@ -37,6 +37,12 @@ class Roster(models.Model):
         self.total_players = total_players
         self.save()
 
+    def add_player(self, player, salary):
+        """ Adds a player to roster by creating a RosterPlayer with the specified salary """
+        if player != None and salary != None:
+            rosterplayer = RosterPlayer(roster=self, player=player, salary=salary)
+            rosterplayer.save()
+
     def __unicode__(self):
         return self.league.name + ', ' + self.user.username
 
