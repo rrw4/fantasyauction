@@ -23,7 +23,7 @@ class Bid(models.Model):
     auction = models.ForeignKey(Auction)
     bidder = models.ForeignKey(User)
     time = models.DateTimeField(blank=True) #server time
-    current_value = models.IntegerField()
+    current_value = models.IntegerField(blank=True, null=True)
     max_value = models.IntegerField()
     current_high_bid = models.BooleanField(default=False) #whether this is current high bid, for an active auction
     winning_bid = models.BooleanField(default=False) #whether this is winning bid for a completed auction
