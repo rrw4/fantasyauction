@@ -20,15 +20,17 @@ class Auction(models.Model):
     def make_bid(self, bid):
         """ Makes a bid on this auction, if it is active
             Will set the bid's current_value
-            Three main cases:
+            Four main cases:
             1. No bids yet
                -Sets the made bid as high bidder, and current bid to MIN_BID_VALUE
-            2. Existing bids, and the made bid is higher than proxy (max value) of highest bid
+            1. Existing bids, same bidder as high bidder, and made bid is higher than proxy (max value) of high bid
+               -Same high bidder, and proxy (max value) increases, while current bid remains the same
+            3. Existing bids, bidder is different than the high bidder, and the made bid is higher than proxy (max value) of highest bid
                -Sets the made bid as high bidder, and current bid to max value of highest bid + MIN_BID_INCREMENT
-            3. Existing bids, and the made bid is higher than current bid value but less than proxy (max value) of highest bid
+            4. Existing bids, bidder is different than the high bidder, and the made bid is higher than current bid value but less than 
+               proxy (max value) of highest bid
                -Sets the current bid to max value of made bid
         """
-        #TODO: allow increasing of high bidder's proxy bid
         if self.active and bid != None and bid.auction == self:
             #first bid
             if self.high_bidder == None and bid.max_value >= MIN_BID_VALUE:
@@ -39,26 +41,44 @@ class Auction(models.Model):
             #previous bids have been made
             else:
                 high_bid = self.get_high_bid()
-                #high bid is outbid - new high bid
-                if bid.max_value > high_bid.max_value:
-                    #update current high bid
-                    high_bid.set_current_value(high_bid.max_value)
-                    high_bid.remove_current_high_bid()
-                    #update the made bid to be current high bid
-                    bid.set_current_high_bid()
-                    bid.set_current_value(current_value=high_bid.max_value+MIN_BID_INCREMENT)
-                    #update auction to have correct denormalized fields
-                    self.high_bid_value = bid.current_value
-                    self.high_bidder = bid.bidder
-                #high bid is not outbid - increase current value if needed
-                else:
-                    if bid.max_value > high_bid.current_value:
-                        high_bid.set_current_value(bid.max_value)
-                        bid.set_current_value(bid.max_value)
-                        self.high_bid_value = bid.max_value
+                #this bid has same bidder as high bidder - high bidder is raising his proxy bid
+                if bid.bidder == self.high_bidder:
+                    if bid.max_value > high_bid.max_value:
+                        #TODO: do something with bid time - this bid is shown in bid history, which clues in other bidders than proxy was raised
+                        high_bid_current_value = high_bid.current_value
+                        #update current high bid
+                        high_bid.set_current_value(high_bid.max_value)
+                        high_bid.remove_current_high_bid()
+                        #update the made bid to be current high bid, but current value is same as previous high bid's current value
+                        bid.set_current_high_bid()
+                        bid.set_current_value(current_value=high_bid_current_value)
+                        #don't need to update auction, since high bid value and high bidder remain the same
                     else:
-                        #this case should not be hit - would mean bid form allowed invalid bid (less than or equal to current high bid)
+                        #this case should not be hit - would mean bid form allowed invalid bid (same bidder as high bid, and bid
+                        #   is less than or equal to max value of high bid)
                         bid.set_current_value(bid.max_value)
+                #different bidder than high bidder
+                else:
+                    #high bid is outbid - new high bid
+                    if bid.max_value > high_bid.max_value:
+                        #update current high bid
+                        high_bid.set_current_value(high_bid.max_value)
+                        high_bid.remove_current_high_bid()
+                        #update the made bid to be current high bid
+                        bid.set_current_high_bid()
+                        bid.set_current_value(current_value=high_bid.max_value+MIN_BID_INCREMENT)
+                        #update auction to have correct denormalized fields
+                        self.high_bid_value = bid.current_value
+                        self.high_bidder = bid.bidder
+                    #high bid is not outbid - increase current value if needed
+                    else:
+                        if bid.max_value > high_bid.current_value:
+                            high_bid.set_current_value(bid.max_value)
+                            bid.set_current_value(bid.max_value)
+                            self.high_bid_value = bid.max_value
+                        else:
+                            #this case should not be hit - would mean bid form allowed invalid bid (less than or equal to current high bid)
+                            bid.set_current_value(bid.max_value)
             self.save()
 
     def complete(self):
