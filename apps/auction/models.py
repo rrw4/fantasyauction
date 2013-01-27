@@ -6,6 +6,17 @@ from league.models import League, Roster
 from player.models import Player
 
 class Auction(models.Model):
+    """ Represents an auction for a player
+        Fields:
+            league - the league the auction is in
+            player - the player the auction is for
+            start_time - when the auction starts (when it is active and bids can be made)
+            expiration_time - when the auction ends (when it is no longer active and bids cannot be made)
+            active - whether auction is active, and bids can be made
+            completed - whether auction has completed and is no longer active
+            high_bid_value - the currently winning bid.  minimum bid is this value + MIN_BID_INCREMENT (usually 1)
+            high_bidder - user that has the currently winning bid
+    """
     league = models.ForeignKey(League)
     player = models.ForeignKey(Player)
     start_time = models.DateTimeField(blank=True) #server time
@@ -107,6 +118,20 @@ class Auction(models.Model):
         return self.player.name
 
 class Bid(models.Model):
+    """ Represents a bid on an auction
+        Fields:
+            auction - auction this bid is for
+            bidder - user that made the bid
+            time - time the bid was made
+            current_value - the bid's current value in the auction.  if it is the high bid, then this is the previous max +
+                MIN_BID_INCREMENT.  if it is not the high bid, this isn't really relevant, but we will still update it (if
+                the bid was outbid, current_value = max_value.  this is not set when user enters the bid via the bid form,
+                it is only set when the bid is made on the auction via make_bid().
+            max_value - the "proxy value" of the bid, e.g. the max the bidder is willing to bid
+            current_high_bid - True if this bid is the currently winning bid.  for the bids in an auction, only one bid should
+                have this be True
+            winning_bid - True if this bid won the auction, e.g. was high bid when auction completed
+    """
     auction = models.ForeignKey(Auction)
     bidder = models.ForeignKey(User)
     time = models.DateTimeField(blank=True) #server time
