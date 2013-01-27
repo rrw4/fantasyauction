@@ -45,13 +45,11 @@ class Auction(models.Model):
                 if bid.bidder == self.high_bidder:
                     if bid.max_value > high_bid.max_value:
                         #TODO: do something with bid time - this bid is shown in bid history, which clues in other bidders than proxy was raised
-                        high_bid_current_value = high_bid.current_value
-                        #update current high bid
-                        high_bid.set_current_value(high_bid.max_value)
+                        #remove current_high_bid, but don't change current_value
                         high_bid.remove_current_high_bid()
                         #update the made bid to be current high bid, but current value is same as previous high bid's current value
                         bid.set_current_high_bid()
-                        bid.set_current_value(current_value=high_bid_current_value)
+                        bid.set_current_value(current_value=high_bid.current_value)
                         #don't need to update auction, since high bid value and high bidder remain the same
                     else:
                         #this case should not be hit - would mean bid form allowed invalid bid (same bidder as high bid, and bid
@@ -62,7 +60,7 @@ class Auction(models.Model):
                     #high bid is outbid - new high bid
                     if bid.max_value > high_bid.max_value:
                         #update current high bid
-                        high_bid.set_current_value(high_bid.max_value)
+                        high_bid.set_current_value(current_value=high_bid.max_value)
                         high_bid.remove_current_high_bid()
                         #update the made bid to be current high bid
                         bid.set_current_high_bid()
@@ -117,6 +115,14 @@ class Bid(models.Model):
     current_high_bid = models.BooleanField(default=False) #whether this is current high bid, for an active auction
     winning_bid = models.BooleanField(default=False) #whether this is winning bid for a completed auction
 
+    def save(self, *args, **kwargs):
+        new_bid = True if self.id is None else False
+        super(Bid, self).save(*args, **kwargs)
+        #if this is a new bid, make the bid on the auction
+        if new_bid:
+            auction = self.auction
+            auction.make_bid(self)
+
     def set_current_value(self, current_value):
         if self.current_value != current_value:
             self.current_value = current_value
@@ -139,5 +145,3 @@ class Bid(models.Model):
 
     def __unicode__(self):
         return self.bidder.username + ', ' + self.auction.player.name + ', ' + str(self.time)
-
-#TODO: post_save signal when bid is created to call auction.make_bid()
