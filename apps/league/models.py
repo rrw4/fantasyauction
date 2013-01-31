@@ -6,27 +6,46 @@ from django.dispatch import receiver
 from player.models import Player
 
 class League(models.Model):
+    """ Represents a fantasy league
+        Fields:
+            name - league name
+            users - ManyToManyField of the owners in the league
+            size - number of teams (owners) in the league
+            salary_cap - base salary cap for each team
+            roster_limit - roster limit (number of players) for each team
+    """
     name = models.CharField(max_length=100, blank=True)
     users = models.ManyToManyField(User, blank=True)
-    size = models.IntegerField(blank=True) #number of teams in the league
-    salary_cap = models.IntegerField(blank=True) #base salary cap per roster
-    roster_limit = models.IntegerField(blank=True) #max players per roster
+    size = models.IntegerField(blank=True)
+    salary_cap = models.IntegerField(blank=True)
+    roster_limit = models.IntegerField(blank=True)
 
     def __unicode__(self):
         return self.name
 
 class Roster(models.Model):
+    """ Represents an owner's team in a league
+        Fields:
+            league - league this team is in
+            user - the owner
+            salary_cap - salary cap of this roster, including cap penalties
+            total_salary - sum of salaries of all players on the roster
+            total_players - number of players on the roster
+    """
     league = models.ForeignKey(League)
     user = models.ForeignKey(User)
-    salary_cap = models.IntegerField(blank=True) #roster's salary cap - may include cap penalties
-    total_salary = models.IntegerField(blank=True) #sum of roster's salaries
-    total_players = models.IntegerField(blank=True) #number of players on the roster
+    salary_cap = models.IntegerField(blank=True)
+    total_salary = models.IntegerField(blank=True)
+    total_players = models.IntegerField(blank=True)
 
     def get_players(self):
         roster_players = RosterPlayer.objects.filter(roster=self)
         return roster_players
 
     def update_roster_numbers(self):
+        """ Updates total_salary and total_players for the roster, generally called
+            after a player has been added to the roster
+        """
         roster_players = RosterPlayer.objects.filter(roster=self)
         total_salary = 0
         total_players = 0
@@ -47,6 +66,12 @@ class Roster(models.Model):
         return self.league.name + ', ' + self.user.username
 
 class RosterPlayer(models.Model):
+    """ Represents an instance of a player on a roster
+        Fields:
+            roster - roster the player is on
+            player - player this represents
+            salary - player's salary, set when auction completes
+    """
     roster = models.ForeignKey(Roster)
     player = models.ForeignKey(Player)
     salary = models.IntegerField(blank=True)
