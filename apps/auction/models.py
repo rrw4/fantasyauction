@@ -2,13 +2,14 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from auction.constants import MIN_BID_VALUE, MIN_BID_INCREMENT
-from league.models import League, Roster
+from league.models import League, Season, Roster
 from player.models import Player
 
 class Auction(models.Model):
     """ Represents an auction for a player
         Fields:
             league - the league the auction is in
+            season - the season the auction is in
             player - the player the auction is for
             start_time - when the auction starts (when it is active and bids can be made)
             expiration_time - when the auction ends (when it is no longer active and bids cannot be made)
@@ -18,6 +19,7 @@ class Auction(models.Model):
             high_bidder - user that has the currently winning bid
     """
     league = models.ForeignKey(League)
+    season = models.ForeignKey(Season)
     player = models.ForeignKey(Player)
     start_time = models.DateTimeField(blank=True) #server time
     expiration_time = models.DateTimeField(blank=True) #server time
