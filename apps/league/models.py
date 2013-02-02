@@ -45,6 +45,7 @@ class Roster(models.Model):
             total_players - number of players on the roster
     """
     league = models.ForeignKey(League)
+    season = models.ForeignKey(Season)
     user = models.ForeignKey(User)
     salary_cap = models.IntegerField(blank=True)
     total_salary = models.IntegerField(blank=True)
