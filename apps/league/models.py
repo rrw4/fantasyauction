@@ -23,6 +23,18 @@ class League(models.Model):
     def __unicode__(self):
         return self.name
 
+class Season(models.Model):
+    """ Represents a season for a fantasy league
+        Fields:
+            name - season name (e.g. 2012, 2012-2013)
+            league - league for this season
+    """
+    name = models.CharField(max_length=100)
+    league = models.ForeignKey(League)
+
+    def __unicode__(self):
+        return self.league.name + ' ' + self.name
+
 class Roster(models.Model):
     """ Represents an owner's team in a league
         Fields:
