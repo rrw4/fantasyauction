@@ -13,8 +13,6 @@ class Auction(models.Model):
             player - the player the auction is for
             start_time - when the auction starts (when it is active and bids can be made)
             expiration_time - when the auction ends (when it is no longer active and bids cannot be made)
-            active - whether auction is active, and bids can be made
-            completed - whether auction has completed and is no longer active
             state - state of the auction (NONE, UPCOMING, LIVE, PENDING, or COMPLETED)
             high_bid_value - the currently winning bid.  minimum bid is this value + MIN_BID_INCREMENT (usually 1)
             high_bidder - user that has the currently winning bid
@@ -24,8 +22,6 @@ class Auction(models.Model):
     player = models.ForeignKey(Player)
     start_time = models.DateTimeField(blank=True) #server time
     expiration_time = models.DateTimeField(blank=True) #server time
-    active = models.BooleanField(default=False) #True when auction is live
-    completed = models.BooleanField(default=False) #True when auction has completed
 
     STATE_CHOICES = (
         (NONE, 'None'),
@@ -104,7 +100,7 @@ class Auction(models.Model):
 
     def complete(self):
         """ Completes the auction if it is not already completed:
-            -Set completed to True
+            -Change state to COMPLETED
             -If there is a high bidder, adds the player to the high bidder's roster
             -Sets Bid with current_high_bid = True to winning_bid = True
         """
