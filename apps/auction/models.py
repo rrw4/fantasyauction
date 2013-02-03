@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from auction.constants import MIN_BID_VALUE, MIN_BID_INCREMENT
+from auction.constants import MIN_BID_VALUE, MIN_BID_INCREMENT, NONE, UPCOMING, LIVE, PENDING, COMPLETED
 from league.models import League, Season, Roster
 from player.models import Player
 
@@ -15,6 +15,7 @@ class Auction(models.Model):
             expiration_time - when the auction ends (when it is no longer active and bids cannot be made)
             active - whether auction is active, and bids can be made
             completed - whether auction has completed and is no longer active
+            state - state of the auction (NONE, UPCOMING, LIVE, PENDING, or COMPLETED)
             high_bid_value - the currently winning bid.  minimum bid is this value + MIN_BID_INCREMENT (usually 1)
             high_bidder - user that has the currently winning bid
     """
@@ -25,6 +26,15 @@ class Auction(models.Model):
     expiration_time = models.DateTimeField(blank=True) #server time
     active = models.BooleanField(default=False) #True when auction is live
     completed = models.BooleanField(default=False) #True when auction has completed
+
+    STATE_CHOICES = (
+        (NONE, 'None'),
+        (UPCOMING, 'Upcoming'),
+        (LIVE, 'Live'),
+        (PENDING, 'Pending'),
+        (COMPLETED, 'Completed'),
+    )
+    state = models.IntegerField(choices=STATE_CHOICES, default=NONE)
 
     #denormalized fields
     high_bid_value = models.IntegerField(blank=True, null=True)
