@@ -2,6 +2,11 @@
 MIN_BID_VALUE = 1
 MIN_BID_INCREMENT = 1
 
+#UFA
+UFA_3_YEAR_DISCOUNT_MAX = 5
+UFA_5_YEAR_DISCOUNT_MAX = 8
+UFA_DISCOUNT_MAX_DEFAULT = UFA_3_YEAR_DISCOUNT_MAX
+
 #auction states
 NONE = 0 #not yet categorized or invalid
 UPCOMING = 1 #auction is scheduled and has yet to start

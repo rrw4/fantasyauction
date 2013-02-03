@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from auction.constants import MIN_BID_VALUE, MIN_BID_INCREMENT, NONE, UPCOMING, LIVE, PENDING, COMPLETED
+from auction.constants import MIN_BID_VALUE, MIN_BID_INCREMENT, UFA_DISCOUNT_MAX_DEFAULT, NONE, UPCOMING, LIVE, PENDING, COMPLETED
 from league.models import League, Season, Roster
 from player.models import Player
 
@@ -105,19 +105,7 @@ class Auction(models.Model):
         self.complete()
 
     def complete(self):
-        """ Completes the auction if it is not already completed:
-            -Change state to COMPLETED
-            -If there is a high bidder, adds the player to the high bidder's roster
-            -Sets Bid with current_high_bid = True to winning_bid = True
-        """
-        if not self.is_completed():
-            self.set_completed()
-            if self.high_bidder != None:
-                roster = Roster.objects.get(user=self.high_bidder)
-                roster.add_player(player=self.player, salary=self.high_bid_value)
-                high_bid = self.get_high_bid()
-                high_bid.set_winning_bid()
-            self.save()
+        self._set_completed_and_create_rosterplayer(salary=self.high_bid_value)
 
     def get_high_bid(self):
         """ Returns Bid object of high bid """
@@ -153,8 +141,48 @@ class Auction(models.Model):
             self.state = COMPLETED
             self.save()
 
+    def _set_completed_and_create_rosterplayer(self, salary):
+        """ Completes the auction if it is not already completed:
+            -Change state to COMPLETED
+            -If there is a high bidder, adds the player to the high bidder's roster
+            -Sets Bid with current_high_bid = True to winning_bid = True
+        """
+        if not self.is_completed():
+            self.set_completed()
+            if self.high_bidder != None:
+                roster = Roster.objects.get(user=self.high_bidder)
+                roster.add_player(player=self.player, salary=salary)
+                high_bid = self.get_high_bid()
+                high_bid.set_winning_bid()
+            self.save()
+
     def __unicode__(self):
         return self.player.name
+
+class UFAAuction(Auction):
+    """ Represents a UFA auction for a player
+        Fields:
+            original_owner - original owner of the player
+            discount_percentage - discount percentage applied to salary if original owner wins the auction
+            discount_max - maximum discount that can be applied to the auction
+    """
+    original_owner = models.ForeignKey(User)
+    discount_percentage = models.FloatField(default=0)
+    discount_max = models.IntegerField(default=UFA_DISCOUNT_MAX_DEFAULT)
+
+    def expire(self):
+        if self.high_bidder == self.original_owner:
+            self.complete_ufa()
+        else:
+            self.complete()
+
+    def complete_ufa(self):
+        """ Same as complete() but applies UFA discount
+        """
+        import math
+        salary_discount = min(int(math.ceil(self.discount_percentage * self.high_bid_value)), self.discount_max)
+        updated_salary = max(self.high_bid_value-salary_discount, MIN_BID_VALUE)
+        self._set_completed_and_create_rosterplayer(salary=updated_salary)
 
 class Bid(models.Model):
     """ Represents a bid on an auction
