@@ -54,7 +54,7 @@ class Auction(models.Model):
                proxy (max value) of highest bid
                -Sets the current bid to max value of made bid
         """
-        if self.active and bid != None and bid.auction == self:
+        if self.is_live() and bid != None and bid.auction == self:
             #first bid
             if self.high_bidder == None and bid.max_value >= MIN_BID_VALUE:
                 bid.set_current_high_bid()
@@ -108,9 +108,8 @@ class Auction(models.Model):
             -If there is a high bidder, adds the player to the high bidder's roster
             -Sets Bid with current_high_bid = True to winning_bid = True
         """
-        if not self.completed:
-            self.completed = True
-            self.active = False
+        if not self.is_completed():
+            self.set_completed()
             if self.high_bidder != None:
                 roster = Roster.objects.get(user=self.high_bidder)
                 roster.add_player(player=self.player, salary=self.high_bid_value)
@@ -125,6 +124,32 @@ class Auction(models.Model):
         except Bid.DoesNotExist:
             return None
         return high_bid
+
+    def is_live(self):
+        return True if self.state == LIVE else False
+
+    def is_completed(self):
+        return True if self.state == COMPLETED else False
+
+    def set_upcoming(self):
+        if self.state != UPCOMING:
+            self.state = UPCOMING
+            self.save()
+
+    def set_live(self):
+        if self.state != LIVE:
+            self.state = LIVE
+            self.save()
+
+    def set_pending(self):
+        if self.state != PENDING:
+            self.state = PENDING
+            self.save()
+
+    def set_completed(self):
+        if self.state != COMPLETED:
+            self.state = COMPLETED
+            self.save()
 
     def __unicode__(self):
         return self.player.name
