@@ -98,6 +98,12 @@ class Auction(models.Model):
                             bid.set_current_value(bid.max_value)
             self.save()
 
+    def expire(self):
+        """ Expiration time for auction has been hit.  For standard auction, just calls complete()
+            UFAAuction and RFAAuction will override this method and do actions specific to them
+        """
+        self.complete()
+
     def complete(self):
         """ Completes the auction if it is not already completed:
             -Change state to COMPLETED
