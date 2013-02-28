@@ -1,25 +1,24 @@
-<html>
-<head><title>auction home</title></head>
-<h1>auction home</h1>
-<body>
-<div>Player: {{ auction.player.get_player_string }}</div>
-<div>Start time: {{ auction.start_time }}</div>
-<div>Expiration time: {{ auction.expiration_time }}</div>
-{% with active=auction.active completed=auction.completed %}
-    <div>Active: {{ active|yesno:"Yes,No" }}</div>
-    <div>Completed: {{ completed|yesno:"Yes,No" }}</div>
-{% endwith %}
-{% if auction.high_bid_value and auction.high_bidder %}
-<div>High bid: ${{ auction.high_bid_value }}</div>
-<div>High bidder: {{ auction.high_bidder.username }}</div>
-{% endif %}
-{% if not auction.completed %}
-<div>Minimum bid: ${{ auction.high_bid_value|default_if_none:"0"|add:"1" }}</div>
-{% endif %}
-<br>
-<div>Bid history:</div>
-{% for bid in bids %}
-    <div>{{ bid.bidder.username }} {{ bid.time }}</div>
-{% endfor %}
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>auction home</h2>
+    <div>Player: {{ auction.player.get_player_string }}</div>
+    <div>Start time: {{ auction.start_time }}</div>
+    <div>Expiration time: {{ auction.expiration_time }}</div>
+    {% with active=auction.active completed=auction.completed %}
+        <div>Active: {{ active|yesno:"Yes,No" }}</div>
+        <div>Completed: {{ completed|yesno:"Yes,No" }}</div>
+    {% endwith %}
+    {% if auction.high_bid_value and auction.high_bidder %}
+    <div>High bid: ${{ auction.high_bid_value }}</div>
+    <div>High bidder: {{ auction.high_bidder.username }}</div>
+    {% endif %}
+    {% if not auction.completed %}
+    <div>Minimum bid: ${{ auction.high_bid_value|default_if_none:"0"|add:"1" }}</div>
+    {% endif %}
+    <br>
+    <div>Bid history:</div>
+    {% for bid in bids %}
+        <div>{{ bid.bidder.username }} {{ bid.time }}</div>
+    {% endfor %}
+{% endblock %}

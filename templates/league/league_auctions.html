@@ -1,13 +1,12 @@
-<html>
-<head><title>league auctions</title></head>
-<h1>league auctions</h1>
-<body>
-<div>Auctions:</div>
-{% for auction in auctions %}
-    {% with auction_id=auction.id %}
-        <div><a href="{% url auction.views.auction_home auction_id=auction_id %}">
-        {{ auction.player.get_player_string }}, start time: {{ auction.start_time }}, expiration time: {{ auction.expiration_time }}</a></div>
-    {% endwith %}
-{% endfor %}
-</body>
-</html>
+{% extends 'league_base.html' %}
+
+{% block league_content %}
+    <h3>league auctions</h3>
+    <div>Auctions:</div>
+    {% for auction in auctions %}
+        {% with auction_id=auction.id %}
+            <div><a href="{% url auction.views.auction_home auction_id=auction_id %}">
+            {{ auction.player.get_player_string }}, start time: {{ auction.start_time }}, expiration time: {{ auction.expiration_time }}</a></div>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}

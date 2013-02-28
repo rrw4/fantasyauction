@@ -1,12 +1,10 @@
-<html>
-<head><title>fantasy auction</title></head>
-<h1>fantasy auction</h1>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
 <div>Leagues:</div>
 {% for league in leagues %}
     {% with league_id=league.id %}
         <div><a href="{% url league.views.league_home league_id=league_id %}">{{ league.name }}</a></div>
     {% endwith %}
 {% endfor %}
-</body>
-</html>
+{% endblock %}

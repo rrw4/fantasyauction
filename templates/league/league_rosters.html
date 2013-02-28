@@ -1,18 +1,17 @@
-<html>
-<head><title>league rosters</title></head>
-<h1>league rosters</h1>
-<body>
-{% for roster in rosters %}
-    <div>{{ roster.user.username }}</div>
-    <div>Total salary: ${{ roster.total_salary }}/${{ roster.salary_cap }}</div>
-    <div>Total players: {{ roster.total_players }}/{{ roster.league.roster_limit }}</div>
-    <div>Players:</div>
-    {% with roster_players=roster.get_players %}
-        {% for roster_player in roster_players %}
-            <div>{{ roster_player.player.get_player_string }} ${{ roster_player.salary }}</div>
-        {% endfor %}
-    {% endwith %}
-    <br>
-{% endfor %}
-</body>
-</html>
+{% extends 'league_base.html' %}
+
+{% block league_content %}
+    <h3>league rosters</h3>
+    {% for roster in rosters %}
+        <div>{{ roster.user.username }}</div>
+        <div>Total salary: ${{ roster.total_salary }}/${{ roster.salary_cap }}</div>
+        <div>Total players: {{ roster.total_players }}/{{ roster.league.roster_limit }}</div>
+        <div>Players:</div>
+        {% with roster_players=roster.get_players %}
+            {% for roster_player in roster_players %}
+                <div>{{ roster_player.player.get_player_string }} ${{ roster_player.salary }}</div>
+            {% endfor %}
+        {% endwith %}
+        <br>
+    {% endfor %}
+{% endblock %}

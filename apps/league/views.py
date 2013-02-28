@@ -11,11 +11,11 @@ def league_home(request, **kwargs):
 def league_rosters(request, **kwargs):
     league = League.objects.get(id=kwargs.pop('league_id'))
     rosters = Roster.objects.filter(league=league)
-    context = {'rosters': rosters}
+    context = {'league': league, 'rosters': rosters}
     return render(request, 'league_rosters.html', context)
 
 def league_auctions(request, **kwargs):
     league = League.objects.get(id=kwargs.pop('league_id'))
     auctions = Auction.objects.filter(league=league)
-    context = {'auctions': auctions}
+    context = {'league': league, 'auctions': auctions}
     return render(request, 'league_auctions.html', context)

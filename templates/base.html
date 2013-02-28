@@ -1,6 +1,13 @@
+<!DOCTYPE html>
 <html>
-<head><title>fantasy auction</title></head>
-<h1>fantasy auction</h1>
+<head>
+    <title>fantasy auction</title>
+    <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+</head>
 <body>
+    <h1>fantasy auction</h1>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    {% block content %}
+    {% endblock %}
 </body>
 </html>
